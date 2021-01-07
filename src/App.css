@@ -1,0 +1,26 @@
+body{
+    margin: 0;
+}
+
+
+.header{
+    background-color: black;
+    color: white;
+    text-align: center;
+    font-size: 20px;
+    padding: 70px;
+}
+
+.defaultMessage{
+    font-size: 40px;
+    text-align: center;
+    margin-top: 10%;
+   
+}
+
+#errorMessage{
+    font-size: 25px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+

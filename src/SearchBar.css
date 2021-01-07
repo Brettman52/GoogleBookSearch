@@ -1,0 +1,14 @@
+.searchBar{
+    text-align: center;
+    background-color: darkgrey;
+    padding: 5px;
+
+}
+
+form > *{
+    margin-left: 5px;
+}
+
+.search-form > label{
+font-size: 20px;
+}

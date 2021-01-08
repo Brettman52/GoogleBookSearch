@@ -5,20 +5,18 @@ import SearchBar from "./SearchBar";
 import BookList from "./BookList";
 
 export class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      search: "",
-      books: [],
-      printType: "ALL",
-      bookType: "ALL",
-      hasSubmitted: false,
-      isEbook: "",
-      saleability: "",
-      failedSearchHold:""
-    };
-  }
-  
+
+  state = {
+    search: "",
+    books: [],
+    printType: "ALL",
+    bookType: "ALL",
+    hasSubmitted: false,
+    isEbook: "",
+    saleability: "",
+    failedSearchHold:""
+  };
+
   handleBookTypeFilter = (bookType) => {
     if (bookType === "FREE_EBOOK") {
       this.setState({
@@ -47,36 +45,38 @@ export class App extends Component {
     });
   };
 
+  formatQueryParams(params) {
+    const queryItems = Object.keys(params).map(
+      (key) => `${key}=${params[key]}`
+    );
+    return queryItems.join("&");
+  }
+
   handleSubmit(e) {
     e.preventDefault();
-if(this.state.search === ""){
-  alert("Enter a search to continue.")
-  } else {
-    const base_url = "https://www.googleapis.com/books/v1/volumes";
 
-    function formatQueryParams(params) {
-      const queryItems = Object.keys(params).map(
-        (key) => `${key}=${params[key]}`
-      );
-      return queryItems.join("&");
+    if(this.state.search === ""){
+      alert("Enter a search to continue.")
     }
+    else {
+      const base_url = "https://www.googleapis.com/books/v1/volumes";
 
-    const params = {
-      q: this.state.search,
-      maxResults: 10,
-      key: "AIzaSyCzLBVLpCtQHMf4ql8ySnqWVv9bzLo6KNE",
-    };
+      const params = {
+        q: this.state.search,
+        maxResults: 10,
+        key: "AIzaSyCzLBVLpCtQHMf4ql8ySnqWVv9bzLo6KNE",
+      };
 
-    const queryString = formatQueryParams(params);
-    const url = encodeURI(base_url + "?" + queryString);
+      const queryString = this.formatQueryParams(params);
+      const url = encodeURI(base_url + "?" + queryString);
 
-    console.log(url);
+      console.log(url);
 
-    const options = {
-      method: "GET",
-    };
+      const options = {
+        method: "GET",
+      };
 
-    fetch(url, options)
+      fetch(url, options)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Something went wrong");
@@ -98,27 +98,20 @@ if(this.state.search === ""){
         });
       });
     }
-      
   }
 
   render() {
 
-    const bookList = this.state.hasSubmitted ? 
-      this.state.books === undefined ? 
-      <div className="searchEmpty">No results for "{this.state.failedSearchHold}"</div> : 
-        <BookList
-          bookData={this.state.books}
-          bookType={this.state.bookType}
-          printType={this.state.printType}
-          isEbook={this.state.isEbook}
-          saleability={this.state.saleability}
-        /> : 
-      <div className="defaultMessage">
-        Search for your favorite books to begin
-      </div>;
-
-    const error = this.state.error ? 
-      <div id="errorMessage" className="renderBookError">{this.state.error}.<br/>Please try your request again later.</div> : " ";
+    const {
+      hasSubmitted,
+      failedSearchHold,
+      error,
+      books,
+      bookType,
+      printType,
+      isEbook,
+      saleability,
+    } = this.state
 
     return (
       <div>
@@ -127,15 +120,39 @@ if(this.state.search === ""){
         </header>
         <SearchBar
           handleSearch={this.handleSearch}
-          handleSubmit={(e) => this.handleSubmit(e)}
+          handleSubmit={this.handleSubmit}
         />
         <Filter
           handlePrintTypeFilter={this.handlePrintTypeFilter}
           handleBookTypeFilter={this.handleBookTypeFilter}
         />
         <section id="content">
-          {error}
-          {bookList} 
+
+          {!hasSubmitted && (
+            <div className="defaultMessage">
+              Search for your favorite books to begin
+            </div>
+          )}
+
+          {hasSubmitted && error && (
+            <div id="errorMessage" className="renderBookError">
+              {this.state.error}.<br/>Please try your request again later.
+            </div>
+          )}
+
+          {hasSubmitted && (books === undefined || books.length === 0) && (
+            <div className="searchEmpty">No results for "{failedSearchHold}"</div>
+          )}
+
+          {books && books.length > 0 && (
+            <BookList
+              bookData={books}
+              bookType={bookType}
+              printType={printType}
+              isEbook={isEbook}
+              saleability={saleability}
+            />
+          )}
         </section>
       </div>
     );
